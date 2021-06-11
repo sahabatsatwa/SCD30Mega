@@ -1,36 +1,43 @@
+#pragma once
+#include "cxm1500geInterface.h"
 
 
-void getDataWillSend(char* payload, CXM1500GENMEAGGAInfo* g_nmea_gga_info_buf){
+void getDataWillSend(char* payload, CXM1500GENMEAGGAInfo* g_nmea_gga_info_buf, uint8_t payload_Type = 0, uint8_t class_Service = 0,uint16_t hum = 0, uint16_t temper = 0, uint16_t co2Con = 0){
     
     memset(payload_data,0xFF,16);
     uint8_t humidity[2];
-    //memset(humidity, '\0', sizeof(humidity));
+    memset(humidity, '\0', sizeof(humidity));
+    memcpy(humidity, &hum, sizeof(hum));
     uint8_t temperature[2];
+    memset(temperature, '\0', sizeof(temperature));
+    memcpy(temperature, &temper, sizeof(temper));
     uint8_t co2[3];
+    memset(co2, '\0', sizeof(co2));
+    memcpy(co2, &co2Con, sizeof(co2Con));
 
-    payload_data[15-0] &= (((humidity[0] & 0xFF) << 2) | ~0xFC);
-    payload_data[15-1] &= (((humidity[0] & 0xFF) >> 6) | ~0x03);
-    payload_data[15-1] &= (((humidity[1] & 0xFF) << 2) | ~0x0C);
+    payload_data[15-0] &= (((humidity[0] & 0xFF) << 2) | ~0xFC); //6bits
+    payload_data[15-1] &= (((humidity[0] & 0xFF) >> 6) | ~0x03); //2bits
+    payload_data[15-1] &= (((humidity[1] & 0xFF) << 2) | ~0x0C); //2bits = 10bits
 
-    payload_data[15-1] &= (((temperature[0] & 0xFF) << 4) | ~0xF0);
-    payload_data[15-2] &= (((temperature[0] & 0xFF) >> 4) | ~0x0F);
-    payload_data[15-2] &= (((temperature[1] & 0xFF) << 4) | ~0xF0);
-    payload_data[15-3] &= (((temperature[1] & 0xFF) >> 4) | ~0x0F);
+    payload_data[15-1] &= (((temperature[0] & 0xFF) << 4) | ~0xF0); //4bits
+    payload_data[15-2] &= (((temperature[0] & 0xFF) >> 4) | ~0x0F); //4bits
+    payload_data[15-2] &= (((temperature[1] & 0xFF) << 4) | ~0xF0); //4bits
+    payload_data[15-3] &= (((temperature[1] & 0xFF) >> 4) | ~0x0F); //4bits = 16bits
 
-    payload_data[15-3] &= (((co2[0] & 0xFF) << 4) | ~0xF0);
-    payload_data[15-4] &= (((co2[0] & 0xFF) >> 4) | ~0x0F);
-    payload_data[15-4] &= (((co2[1] & 0xFF) << 4) | ~0xF0);
-    payload_data[15-5] &= (((co2[1] & 0xFF) >> 4) | ~0x0F);
-    payload_data[15-5] &= (((co2[2] & 0xFF) << 4) | ~0x10);
+    payload_data[15-3] &= (((co2[0] & 0xFF) << 4) | ~0xF0); //4bits
+    payload_data[15-4] &= (((co2[0] & 0xFF) >> 4) | ~0x0F); //4bits
+    payload_data[15-4] &= (((co2[1] & 0xFF) << 4) | ~0xF0); //4bits
+    payload_data[15-5] &= (((co2[1] & 0xFF) >> 4) | ~0x0F); //4bits
+    payload_data[15-5] &= (((co2[2] & 0xFF) << 4) | ~0x10); //1bits = 17bits
 
-    payload_data[15-5] &= (((g_nmea_gga_info_buf->m_pos_status & 0xFF) << 5) | ~0x60);
+    payload_data[15-5] &= (((g_nmea_gga_info_buf->m_pos_status & 0xFF) << 5) | ~0x60); //2bit
 
     int count_satelit = g_nmea_gga_info_buf->m_sat_used;
     if(count_satelit > 7) {
         count_satelit = 7;
     }
-    payload_data[15-5] &= (((count_satelit & 0xFF) << 7) | ~0x80);
-    payload_data[15-6] &= (((count_satelit & 0xFF) >> 6) | ~0xC0);
+    payload_data[15-5] &= (((count_satelit & 0xFF) << 7) | ~0x80); //1bit
+    payload_data[15-6] &= (((count_satelit & 0xFF) >> 6) | ~0x03); //2bits = 3bits
 
     uint8_t src[11];
     memset(src, '\0', sizeof(src));
@@ -89,6 +96,60 @@ void getDataWillSend(char* payload, CXM1500GENMEAGGAInfo* g_nmea_gga_info_buf){
     uint8_t longitude[4];
     memset(longitude, '\0', sizeof(longitude));
     memcpy(longitude, &lon_int, sizeof(lon_int));
+
+    payload_data[15-6] &= (((longitude[0] & 0xFF) << 2) | ~0xFC); //6bits
+    payload_data[15-7] &= (((longitude[0] & 0xFF) >> 6) | ~0x03); //2bits
+    payload_data[15-7] &= (((longitude[1] & 0xFF) >> 2) | ~0xFC); //6bits
+    payload_data[15-8] &= (((longitude[1] & 0xFF) >> 6) | ~0x03); //2bits
+    payload_data[15-8] &= (((longitude[2] & 0xFF) << 2) | ~0x7C); //5bits = 21bits
+
+    uint8_t latitude[4];
+    memset(latitude, '\0', sizeof(latitude));
+    memcpy(latitude, &lat_int, sizeof(lat_int));
+
+    payload_data[15-8] &= (((latitude[0] & 0xFF) << 7) | ~0x80); //1bit
+    payload_data[15-9] &= (((latitude[0] & 0xFF) >> 1) | ~0x7F); //7bits
+    payload_data[15-9] &= (((latitude[1] & 0xFF) << 7) | ~0x80); //1bit
+    payload_data[15-10] &= (((latitude[1] & 0xFF) >> 1) | ~0x7F); //7bits
+    payload_data[15-10] &= (((latitude[2] & 0xFF) << 7) | ~0x80); //1bit
+    payload_data[15-11] &= (((latitude[2] & 0cFF) >> 1) | ~0x0F); //4bits = 21bits
+
+    memset(src, '/0', sizeof(src));
+    strncpy((char*)&src, (char*)g_nmea_gga_info_buf->m_utc, 9);
+
+    uint8_t utc_temp[3];
+    memset(utc_temp, '\0', sizeof(utc_temp));
+    strncpy((char*)&utc_temp, (char*)&src[0], 2);
+    uint8_t utc_hh_unit = atoi((char*)&utc_temp);
+
+    memset(utc_temp, '\0', sizeof(utc_temp));
+    strncpy((char*)&utc_temp, (char*)&src[2], 2);
+    uint8_t utc_mm_unit = atoi((char*)&utc_temp);
+
+    memset(utc_temp, '\0', sizeof(utc_temp));
+    strncpy((char*)&utc_temp, (char*)&src[4], 2);
+    int utc_ss_unit = atoi((char*)&utc_temp);
+  
+    uint8_t utcSS[4];
+    memset(utcSS, '\0', sizeof(utcSS));
+    memcpy(utcSS, &utc_ss_unit, sizeof(utc_ss_unit));
+
+    payload_data[15-11] &= (((utcSS[0] & 0xFF) << 4) | ~0xF0); //4bits
+    payload_data[15-12] &= (((utcSS[0] & 0xFF) >> 4) | ~0x03); //2bits
+    payload_data[15-12] &= (((utc_mm_unit & 0xFF) << 2) | ~0xFC); //6bits
+    payload_data[15-13] &= (((utc_hh_unit & 0xFF)) | ~0x1F); //5bits = 17bits
+
+    Fixed hdop = 0;
+    
+    hdop = FLOAT2FIXED(g_nmea_gga_info_buf->m_hdop);
+    uint8_t hdop_8[2];
+    memset(hdop_8, '\0', sizeof(hdop_8));
+    memcpy(hdop_8, &hdop, sizeof(hdop));
+
+    payload_data[15-13] &= (((hdop_8[0] & 0xFF) << 5) | ~0xE0); //3bits
+
+    payload_data[15-14] &= (((payload_Type & 0xFF) | ~0x0F)); //4bits
+    payload_data[15-15] &= (((class_Service & 0xFF) << 5) | ~0xE0);//3bits = 7bits + 9bits reserved = 16bits
 
 }
 

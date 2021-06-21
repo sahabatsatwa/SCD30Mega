@@ -2,7 +2,7 @@
 #include "cxm1500geInterface.h"
 
 
-void getDataWillSend(char* payload_data, CXM1500GENMEAGGAInfo* g_nmea_gga_info_buf, byte flagJapanCorrection = 0,uint8_t payload_Type = 0, uint8_t class_Service = 0,int16_t hum = 0, int16_t temper = 0, int16_t co2Con = 0){
+void getDataWillSend(char* payload_data, CXM1500GENMEAGGAInfo* g_nmea_gga_info_buf, byte flagJapanCorrection = 0,uint8_t payload_Type = 8, uint8_t class_Service = 0,int16_t hum = 0, int16_t temper = 0, int16_t co2Con = 0){
     
     memset(payload_data,0xFF,16);
     int8_t humidity[2];

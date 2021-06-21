@@ -47,7 +47,7 @@ class myEltresCallback : public cxm1500geCallback
   {
     float result[3] = {0};
 
-    if (scd.isAvailable()) {
+    if (scd30.isAvailable()) {
       tempCo2 = result[0];
       tempTemperature = result[1];
       tempHum = result[2];
@@ -115,24 +115,4 @@ void loop()
        but reboot 24 hours base UTC active in log appear message "--- Reboot 24 Hours Time ---"
        and reboot also can reboot-interval only.
     */
-}
-
-uint16_t clampSensor()
-{
-  float ct0_ampsum = 0;
-  for (int i = 0; i < 10; i++)
-  {
-    float ct0 = eltres->getADC(0); // with channel A0 ADC result in mV
-    ct0 *= 0.034364261;            // (ct0 = ct0*(3000)/(0.9*0.97*100)/1000
-    ct0_ampsum += ct0;
-    delay(5);
-  }
-  ct0_ampsum /= 10;
-  ct0_ampsum *= 100;
-  if (ct0_ampsum < 0)
-  {
-    ct0_ampsum = 0;
-  }
-
-  return FLOAT2FIXED_sens(ct0_ampsum);
 }

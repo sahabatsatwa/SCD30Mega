@@ -30,7 +30,7 @@ void getDataWillSend(char* payload_data, CXM1500GENMEAGGAInfo* g_nmea_gga_info_b
     payload_data[15-5] &= (((co2[1] & 0xFF) >> 4) | ~0x0F); //4bits
     payload_data[15-5] &= (((co2[2] & 0xFF) << 4) | ~0x10); //1bits = 17bits
 
-    payload_data[15-5] &= (((g_nmea_gga_info_buf->m_pos_status & 0xFF) << 5) | ~0x60); //2bit
+    payload_data[15-5] &= (((g_nmea_gga_info_buf->m_pos_status & 0xFF) << 5) | ~0x20); //2bit
 
     int count_satelit = g_nmea_gga_info_buf->m_sat_used;
     if(count_satelit > 7) {

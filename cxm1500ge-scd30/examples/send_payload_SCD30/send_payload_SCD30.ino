@@ -7,7 +7,7 @@
 
 #include "cxm1500geInterface.h"
 #include <stdio.h>
-#include "generatePayload.h"
+#include "generatePayload_scd30.h"
 #include <Adafruit_SCD30.h>
 
 cxm1500geInterface *eltres;

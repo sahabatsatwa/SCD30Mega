@@ -57,7 +57,7 @@ class myEltresCallback : public cxm1500geCallback
     int16_t temperature = (int16_t) tempTemperature;
     int16_t co2 = (int16_t) tempCo2;    
 
-    byte typePayload = 0;
+    byte typePayload = 8;
     byte classService = 0;
     getDataWillSend(dataWillSend, GGAInfo, japanCorrection, typePayload, classService, hum, temperature, co2);
   };

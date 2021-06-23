@@ -93,8 +93,6 @@ void setup()
   eltres->setStateEvent(1);
 
   /* --end of ELTRES Library */
-
-  scd30.initialize();
 }
 
 byte test = 0;

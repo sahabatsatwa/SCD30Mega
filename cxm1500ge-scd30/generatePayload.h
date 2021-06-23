@@ -37,7 +37,7 @@ void getDataWillSend(char* payload_data, CXM1500GENMEAGGAInfo* g_nmea_gga_info_b
         count_satelit = 7;
     }
     payload_data[15-5] &= (((count_satelit & 0xFF) << 7) | ~0x80); //1bit
-    payload_data[15-6] &= (((count_satelit & 0xFF) >> 6) | ~0x03); //2bits = 3bits
+    payload_data[15-6] &= (((count_satelit & 0xFF) >> 1) | ~0x03); //2bits = 3bits
 
     uint8_t src[11];
     memset(src, '\0', sizeof(src));
